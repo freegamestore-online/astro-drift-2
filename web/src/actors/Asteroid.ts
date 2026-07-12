@@ -23,10 +23,13 @@ function asteroidPoints(radius: number, numPoints: number): { x: number; y: numb
   return pts;
 }
 
+const GLOW_COLORS = ["#ff6b35", "#ff2d78", "#a855f7", "#facc15", "#fb923c"];
+
 export class Asteroid extends Actor {
   private readonly radius: number;
   private readonly pts: { x: number; y: number }[];
   private readonly glowColor: string;
+  private readonly canvasSize: number;
 
   constructor(
     x: number,
@@ -47,16 +50,12 @@ export class Asteroid extends Actor {
     this.angularVelocity = spin;
     this.radius = radius;
     this.glowColor = glowColor;
-    const size = Math.ceil(radius * 2 + 12);
+    this.canvasSize = Math.ceil(radius * 2 + 12);
     this.pts = asteroidPoints(radius - 2, 9 + Math.floor(Math.random() * 4));
-    // Store size for canvas
-    this._canvasSize = size;
   }
 
-  private _canvasSize: number;
-
   onInitialize(_engine: Engine): void {
-    const size = this._canvasSize;
+    const size = this.canvasSize;
     const pts = this.pts;
     const glowColor = this.glowColor;
 
@@ -95,7 +94,6 @@ export class Asteroid extends Actor {
     const margin = this.radius + 20;
     const w = engine.drawWidth;
     const h = engine.drawHeight;
-    // Remove when far off-screen
     if (
       this.pos.x < -margin ||
       this.pos.x > w + margin ||
@@ -107,8 +105,6 @@ export class Asteroid extends Actor {
   }
 }
 
-const GLOW_COLORS = ["#ff6b35", "#ff2d78", "#a855f7", "#facc15", "#fb923c"];
-
 export function spawnAsteroid(engine: Engine): Asteroid {
   const w = engine.drawWidth;
   const h = engine.drawHeight;
@@ -117,7 +113,6 @@ export function spawnAsteroid(engine: Engine): Asteroid {
   const spin = randomBetween(-1.8, 1.8);
   const glowColor = GLOW_COLORS[Math.floor(Math.random() * GLOW_COLORS.length)] ?? "#ff6b35";
 
-  // Pick a random edge to spawn from
   const edge = Math.floor(Math.random() * 4);
   let x = 0;
   let y = 0;

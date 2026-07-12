@@ -51,7 +51,7 @@ export class Ship extends Actor {
         ctx.fillStyle = "rgba(0, 245, 255, 0.10)";
         ctx.fill();
 
-        // Engine dot
+        // Engine core dot
         ctx.beginPath();
         ctx.arc(0, 9, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = "#ffffff";
@@ -96,7 +96,9 @@ export class Ship extends Actor {
         this.vel = vec(0, 0);
       } else {
         const norm = diff.normalize();
-        const approachSpeed = Math.min(this.speed, (dist / (delta / 1000)));
+        // Smooth approach: scale speed by distance, capped at max speed
+        const dtSec = delta / 1000;
+        const approachSpeed = dtSec > 0 ? Math.min(this.speed, dist / dtSec) : this.speed;
         this.vel = norm.scale(Math.min(approachSpeed, this.speed));
       }
     } else {
