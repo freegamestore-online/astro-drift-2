@@ -31,12 +31,11 @@ export default function App() {
 
   const stopGame = useCallback(
     (finalScore: number) => {
-      if (phaseRef.current !== "playing") return; // guard double-fire
+      if (phaseRef.current !== "playing") return;
       phaseRef.current = "over";
       updateHighScore(finalScore);
       setPhase("over");
 
-      // Remove all non-ship actors
       const scene = activeSceneRef.current;
       if (scene) {
         scene.actors.forEach((a) => {
@@ -56,11 +55,9 @@ export default function App() {
     setScore(0);
     setPhase("playing");
 
-    // Build a fresh scene each run
     const scene = new Scene();
     activeSceneRef.current = scene;
 
-    // Ship — centred
     const ship = new Ship(engine.drawWidth / 2, engine.drawHeight / 2);
     scene.add(ship);
 
@@ -94,7 +91,7 @@ export default function App() {
     scene.addTimer(scoreTimer);
     scoreTimer.start();
 
-    // Asteroid spawner — uses chained one-shot timers so interval shrinks over time
+    // Asteroid spawner — one-shot timers so interval can shrink over time
     let spawnDelay = 1400;
 
     function scheduleNextSpawn(): void {
@@ -113,13 +110,12 @@ export default function App() {
       t.start();
     }
 
-    // Seed with a few asteroids immediately
+    // Seed with a few asteroids right away
     for (let i = 0; i < 3; i++) {
       scene.add(spawnAsteroid(engine));
     }
     scheduleNextSpawn();
 
-    // Register and go
     const sceneName = `game_${Date.now()}`;
     engine.addScene(sceneName, scene);
     void engine.goToScene(sceneName);
@@ -134,7 +130,6 @@ export default function App() {
       canvasElement,
       displayMode: DisplayMode.FillContainer,
       backgroundColor: Color.fromRGB(4, 6, 20),
-      suppressPlayButton: true,
     });
 
     engineRef.current = game;
@@ -146,7 +141,7 @@ export default function App() {
     };
   }, []);
 
-  // Sidebar: controls + scores
+  // Sidebar content
   const sidebar = (
     <div className="flex flex-col gap-5 px-6 py-4 flex-1">
       <div>
@@ -200,7 +195,7 @@ export default function App() {
       <div className="relative w-full h-full" style={{ background: "#040614" }}>
         <canvas ref={canvasRef} className="w-full h-full" />
 
-        {/* Live score HUD */}
+        {/* Live score HUD (mobile / in-canvas) */}
         {phase === "playing" && (
           <div
             className="absolute top-3 left-1/2 -translate-x-1/2 px-5 py-1.5 rounded-full text-sm font-bold tabular-nums pointer-events-none select-none"

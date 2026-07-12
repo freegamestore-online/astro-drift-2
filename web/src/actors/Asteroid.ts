@@ -23,13 +23,13 @@ function asteroidPoints(radius: number, numPoints: number): { x: number; y: numb
   return pts;
 }
 
-const GLOW_COLORS = ["#ff6b35", "#ff2d78", "#a855f7", "#facc15", "#fb923c"];
+const GLOW_COLORS = ["#ff6b35", "#ff2d78", "#a855f7", "#facc15", "#fb923c"] as const;
 
 export class Asteroid extends Actor {
-  private readonly radius: number;
-  private readonly pts: { x: number; y: number }[];
-  private readonly glowColor: string;
-  private readonly canvasSize: number;
+  private readonly _radius: number;
+  private readonly _pts: { x: number; y: number }[];
+  private readonly _glowColor: string;
+  private readonly _canvasSize: number;
 
   constructor(
     x: number,
@@ -48,16 +48,16 @@ export class Asteroid extends Actor {
     this.body.collisionType = CollisionType.Passive;
     this.vel = vec(vx, vy);
     this.angularVelocity = spin;
-    this.radius = radius;
-    this.glowColor = glowColor;
-    this.canvasSize = Math.ceil(radius * 2 + 12);
-    this.pts = asteroidPoints(radius - 2, 9 + Math.floor(Math.random() * 4));
+    this._radius = radius;
+    this._glowColor = glowColor;
+    this._canvasSize = Math.ceil(radius * 2 + 12);
+    this._pts = asteroidPoints(radius - 2, 9 + Math.floor(Math.random() * 4));
   }
 
   onInitialize(_engine: Engine): void {
-    const size = this.canvasSize;
-    const pts = this.pts;
-    const glowColor = this.glowColor;
+    const size = this._canvasSize;
+    const pts = this._pts;
+    const glowColor = this._glowColor;
 
     const canvas = new Canvas({
       width: size,
@@ -72,9 +72,13 @@ export class Asteroid extends Actor {
 
         ctx.beginPath();
         if (pts.length > 0) {
-          ctx.moveTo(pts[0]!.x, pts[0]!.y);
+          const first = pts[0];
+          if (first) {
+            ctx.moveTo(first.x, first.y);
+          }
           for (let i = 1; i < pts.length; i++) {
-            ctx.lineTo(pts[i]!.x, pts[i]!.y);
+            const pt = pts[i];
+            if (pt) ctx.lineTo(pt.x, pt.y);
           }
           ctx.closePath();
         }
@@ -91,7 +95,7 @@ export class Asteroid extends Actor {
   }
 
   onPreUpdate(engine: Engine, _delta: number): void {
-    const margin = this.radius + 20;
+    const margin = this._radius + 20;
     const w = engine.drawWidth;
     const h = engine.drawHeight;
     if (
@@ -111,7 +115,8 @@ export function spawnAsteroid(engine: Engine): Asteroid {
   const radius = randomBetween(18, 46);
   const speed = randomBetween(55, 145);
   const spin = randomBetween(-1.8, 1.8);
-  const glowColor = GLOW_COLORS[Math.floor(Math.random() * GLOW_COLORS.length)] ?? "#ff6b35";
+  const colorIndex = Math.floor(Math.random() * GLOW_COLORS.length);
+  const glowColor: string = GLOW_COLORS[colorIndex] ?? "#ff6b35";
 
   const edge = Math.floor(Math.random() * 4);
   let x = 0;
